@@ -1,12 +1,13 @@
 # Сеть в K8s (minikube)
 
 Схема: `клиент -> ingress-nginx -> Ingress -> Service -> Pod`.
-Хост `foodgram.local`: `/` идёт на `frontend`, а `/api`, `/admin`, `/media`, `/s` - на `backend`.
+Хост `foodgram.test`: `/` идёт на `frontend`, а `/api`, `/admin`, `/media`, `/s` - на `backend`.
+(На macOS лучше `.test`, а не `.local` — `.local` занят Bonjour и часто ломает DNS.)
 
 ## Запуск
 
 ```bash
-minikube start
+minikube start --driver=qemu2 --network=socket_vmnet --cni=calico
 minikube addons enable ingress
 kubectl get pods -n ingress-nginx
 
@@ -24,8 +25,8 @@ kubectl apply -f k8s/foodgram/ingress
 ## Локальный домен
 
 ```bash
-echo "127.0.0.1 foodgram.local" | sudo tee -a /etc/hosts
-minikube tunnel   # в отдельном терминале, тк без него Ingress не получит адрес
+echo "$(minikube ip) foodgram.test" | sudo tee -a /etc/hosts
+minikube tunnel   # в отдельном терминале (для QEMU нужен socket_vmnet)
 ```
 
 ## Проверка
@@ -33,7 +34,7 @@ minikube tunnel   # в отдельном терминале, тк без нег
 ```bash
 kubectl get ingress -n foodgram
 kubectl get certificate -n foodgram  
-curl -k https://foodgram.local/api/recipes/
+curl -k https://foodgram.test/api/recipes/
 ```
 
 Сертификат self-signed, поэтому браузер покажет предупреждение.

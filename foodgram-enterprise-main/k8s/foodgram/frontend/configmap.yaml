@@ -6,7 +6,7 @@ metadata:
 data:
   default.conf: |
     server {
-        listen 80;
+        listen 8080;
         client_max_body_size 10M;
 
         location /api/ {
@@ -29,7 +29,7 @@ data:
             index index.html;
             try_files $uri $uri/ /index.html;
         }
-    
+
         location /media/ {
             proxy_set_header Host $http_host;
             proxy_pass http://backend:8000/media/;

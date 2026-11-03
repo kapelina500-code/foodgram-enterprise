@@ -9,10 +9,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - foodgram.local
+        - foodgram.test
       secretName: foodgram-tls
   rules:
-    - host: foodgram.local
+    - host: foodgram.test
       http:
         paths:
           - path: /

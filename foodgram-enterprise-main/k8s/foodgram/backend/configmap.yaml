@@ -6,5 +6,5 @@ metadata:
 data:
   DB_HOST: postgres
   DB_PORT: "5432"
-  ALLOWED_HOSTS: localhost,127.0.0.1,backend,foodgram.local
-  CSRF_TRUSTED_ORIGINS: https://foodgram.local,http://foodgram.local
+  ALLOWED_HOSTS: localhost,127.0.0.1,backend,foodgram.test
+  CSRF_TRUSTED_ORIGINS: https://foodgram.test,http://foodgram.test

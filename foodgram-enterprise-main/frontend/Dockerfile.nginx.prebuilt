@@ -1,0 +1,5 @@
+# Использовать, если npm внутри Docker падает по сети.
+# Сначала: cd frontend && npm install && npm run build
+FROM nginxinc/nginx-unprivileged:1.25.4-alpine
+COPY build /usr/share/nginx/html
+EXPOSE 8080

@@ -13,9 +13,16 @@ spec:
       labels:
         app: backend
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       initContainers:
         - name: migrate
-          image: elvinka505/foodgram-backend:0.1.1
+          image: elvinka505/foodgram-backend:0.1.0
           command: ["python", "manage.py", "migrate", "--noinput"]
           envFrom: &backend-env
             - configMapRef:
@@ -24,13 +31,21 @@ spec:
                 name: backend-secret
             - secretRef:
                 name: postgres-secret
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
       containers:
         - name: backend
-          image: elvinka505/foodgram-backend:0.1.1
+          image: elvinka505/foodgram-backend:0.1.0
           ports:
             - containerPort: 8000
               name: http
           envFrom: *backend-env
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           readinessProbe:
             httpGet:
               path: /admin/login/

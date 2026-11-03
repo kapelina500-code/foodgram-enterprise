@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-watcher
+  namespace: foodgram
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-watcher
+  template:
+    metadata:
+      labels:
+        app: pod-watcher
+    spec:
+      serviceAccountName: pod-watcher
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: pod-watcher
+          image: python:3.12-slim
+          workingDir: /app
+          command: ["sh", "-c"]
+          args:
+            - |
+              pip install --user kubernetes requests &&
+              python -u main.py
+          env:
+            - name: HOME
+              value: /tmp
+            - name: PATH
+              value: /tmp/.local/bin:/usr/local/bin:/usr/bin:/bin
+            - name: PYTHONPATH
+              value: /app
+            - name: NTFY_TOPIC
+              valueFrom:
+                secretKeyRef:
+                  name: ntfy
+                  key: topic
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: code
+              mountPath: /app/main.py
+              subPath: main.py
+            - name: code
+              mountPath: /app/watcher.py
+              subPath: watcher.py
+            - name: code
+              mountPath: /app/notifier.py
+              subPath: notifier.py
+            - name: code
+              mountPath: /app/logger.py
+              subPath: logger.py
+      volumes:
+        - name: code
+          configMap:
+            name: pod-watcher-code
